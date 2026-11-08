@@ -1,0 +1,33 @@
+name: Publish GitHub release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Check tag matches package version
+        run: node -e 'if (process.env.GITHUB_REF_NAME !== "v" + require("./package.json").version) process.exit(1)'
+      - run: npm ci
+      - run: npm run check
+      - name: Install Pebble tool and SDK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfdt1 libsdl2-2.0-0 libpixman-1-0
+          python -m pip install pebble-tool==5.1.2
+          pebble sdk install 4.44
+      - run: npm run release
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" build/t3-pebble-v*.pbw build/SHA256SUMS --verify-tag --title "$GITHUB_REF_NAME" --notes-file store/release-notes.md

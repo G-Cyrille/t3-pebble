@@ -1,0 +1,48 @@
+name: iPhone compatibility report
+description: Share what works or fails on iPhone, including successful setups.
+body:
+  - type: markdown
+    attributes:
+      value: "Please remove private data. AI assistance is welcome; disclose tools and models below. Security reports belong in SECURITY.md."
+  - type: textarea
+    id: versions
+    attributes:
+      label: Device and versions
+      description: iPhone model, iOS version, Pebble mobile app version, watch model/firmware, T3 for Pebble version, and T3 version.
+    validations:
+      required: true
+  - type: textarea
+    id: results
+    attributes:
+      label: What worked or failed
+      description: Pairing, reopening the app, language changes, reading, sending, dictation, and Bluetooth reconnection. State anything not tested.
+    validations:
+      required: true
+  - type: textarea
+    id: network
+    attributes:
+      label: Connection type
+      description: HTTPS or Tailscale VPN, and whether T3 was reachable from the phone. Do not include a private address.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Steps and redacted evidence
+      description: For failures, include reproduction steps and error text. Remove personal data from screenshots.
+    validations:
+      required: false
+  - type: textarea
+    id: ai-writing
+    attributes:
+      label: AI usage for writing
+      description: Agents/tools, model(s), and role in writing or translating this issue. Use None or Unknown / not exposed when appropriate.
+    validations:
+      required: true
+  - type: textarea
+    id: ai-implementation
+    attributes:
+      label: AI usage for investigation or implementation
+      description: Agents/tools, model(s), and role in code, investigation, tests, assets, or review. Use None, Not applicable, or Unknown / not exposed.
+    validations:
+      required: true

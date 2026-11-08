@@ -1,0 +1,7 @@
+'use strict';
+module.exports = {
+  command: {LIST: 1, READ: 2, SEND: 3, POLL: 4, RETRY: 5, ORGANIZE: 6, SEEN: 7},
+  kind: {LIST: 1, ROW: 2, READ: 3, ERROR: 4, SENT: 5, NOTICE: 6, CONNECTED: 7, RESET: 8, UPDATED: 9},
+  pageSize: 6,
+  textBytes: 1100
+};

@@ -1,0 +1,48 @@
+name: Bug report
+description: Report a reproducible problem with synthetic or redacted data.
+body:
+  - type: markdown
+    attributes:
+      value: "Please remove private data. AI assistance is welcome; disclose tools and models below. Security reports belong in SECURITY.md."
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions
+      description: App version, watch model/firmware, phone OS, Pebble mobile app, and T3 version.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps and whether this also happens after restarting the app.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+      description: Describe what should happen and what you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Logs or screenshots with tokens, private addresses, titles, and conversation text removed.
+    validations:
+      required: false
+  - type: textarea
+    id: ai-writing
+    attributes:
+      label: AI usage for writing
+      description: Agents/tools, model(s), and role in writing or translating this issue. Use None or Unknown / not exposed when appropriate.
+    validations:
+      required: true
+  - type: textarea
+    id: ai-implementation
+    attributes:
+      label: AI usage for investigation or implementation
+      description: Agents/tools, model(s), and role in code, investigation, tests, assets, or review. Use None, Not applicable, or Unknown / not exposed.
+    validations:
+      required: true

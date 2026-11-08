@@ -1,0 +1,74 @@
+{
+  "name": "t3-pebble",
+  "author": "G-Cyrille",
+  "version": "1.0.0",
+  "keywords": [
+    "pebble-app"
+  ],
+  "private": true,
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "prepare-config": "node scripts/prepare-locales.js && node scripts/prepare-config.js",
+    "build": "npm run prepare-config && pebble build",
+    "check": "npm run prepare-config && node scripts/check-js.js && npm test",
+    "release": "npm run build && python3 scripts/package-release.py"
+  },
+  "dependencies": {
+    "js-sha256": "0.11.1"
+  },
+  "devDependencies": {
+    "acorn": "8.15.0"
+  },
+  "pebble": {
+    "displayName": "T3 for Pebble",
+    "uuid": "7f49ca50-ad16-4da5-a138-e2400a3a2bcf",
+    "sdkVersion": "3",
+    "manifestVersion": 1,
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "emery"
+    ],
+    "capabilities": [
+      "configurable"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "messageKeys": [
+      "Command",
+      "Request",
+      "Route",
+      "Offset",
+      "Action",
+      "Message",
+      "Kind",
+      "Count",
+      "Total",
+      "Index",
+      "Title",
+      "Subtitle",
+      "Text",
+      "HasMore",
+      "Notice",
+      "Category",
+      "Limit",
+      "Revision",
+      "Language"
+    ],
+    "resources": {
+      "media": [
+        {
+          "type": "bitmap",
+          "name": "MENU_ICON",
+          "file": "images/menu-icon.png",
+          "menuIcon": true
+        }
+      ]
+    }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/G-Cyrille/t3-pebble.git"
+  }
+}

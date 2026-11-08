@@ -1,0 +1,18 @@
+Read your T3 Code threads and reply from Pebble Time 2.
+
+Browse Ended, Working, Snoozed and Settled threads across your linked machines. Hold Up to change category. Titles use two lines and more threads load automatically as you scroll.
+
+Select opens a thread. Select again opens saved replies, starting with a three-line summary. Scroll up for Refresh all, Settle, Snooze and Mark unread. Replies are shown as drafts before sending. System dictation is available when supported by your phone app and speech service.
+
+Connect to your own T3 server with a pairing code. One connection includes machines linked in T3. No developer-hosted relay, account or analytics. Your phone needs HTTPS access or a Tailscale VPN to your server. Read-only permissions are available. Requesting a summary sends a prompt to your agent and may use provider credits.
+
+English by default; French selectable in settings without reconnecting. Community translations welcome on GitHub.
+
+Time 2 only in this release. Android has been used on hardware. iPhone setup and dictation are not yet validated: please share successful setups and problems through the iPhone compatibility form on GitHub.
+
+Requires T3 Code with MCP and OAuth pairing support. Done means completed and unread on this watch; this read state is independent of desktop T3.
+
+Unofficial client, open source under MIT.
+Setup: https://g-cyrille.github.io/t3-pebble/
+Privacy: https://g-cyrille.github.io/t3-pebble/privacy.html
+Source and feedback: https://github.com/G-Cyrille/t3-pebble

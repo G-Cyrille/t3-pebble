@@ -1,0 +1,10 @@
+node_modules/
+build/
+.lock-waf*
+.waf-*
+src/pkjs/config-page.js
+artifacts/
+*.pbw
+.env*
+src/c/i18n-generated.h
+src/pkjs/catalogs.json

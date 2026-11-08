@@ -1,0 +1,26 @@
+{
+  "name": "T3 for Pebble",
+  "package": "t3-pebble",
+  "version": "1.0.0",
+  "uuid": "7f49ca50-ad16-4da5-a138-e2400a3a2bcf",
+  "type": "watchapp",
+  "category": "tools",
+  "developerName": "G-Cyrille",
+  "supportEmail": "oiawo.cir@gmail.com",
+  "sourceUrl": "https://github.com/G-Cyrille/t3-pebble",
+  "privacyPolicyUrl": "https://g-cyrille.github.io/t3-pebble/privacy.html",
+  "tutorialUrl": "https://g-cyrille.github.io/t3-pebble/",
+  "platforms": [
+    "emery"
+  ],
+  "phoneCompatibility": {
+    "android": "used on physical Time 2",
+    "iphone": "reports requested; not validated"
+  },
+  "assets": {
+    "iconSmall": "store/assets/icon-80.png",
+    "iconLarge": "store/assets/icon-144.png",
+    "banner": "store/assets/banner-720x320.png",
+    "screenshots": "store/screenshots"
+  }
+}

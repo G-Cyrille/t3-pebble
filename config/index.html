@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T3 for Pebble</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,sans-serif;color:light-dark(#17151c,#f1edf6);background:light-dark(#fff,#15131a)}
+body{margin:0;padding:28px 22px;max-width:480px}h1{font-size:28px;margin:0 0 26px;letter-spacing:-1px}label{display:block;font-size:15px;font-weight:600;margin:24px 0 8px}input,select,button{font:inherit;box-sizing:border-box;width:100%;min-height:48px;border-radius:5px}input,select{padding:10px;border:1px solid light-dark(#a19aa9,#736b7e);color:inherit;background:light-dark(#fff,#211d29)}p{font-size:14px;line-height:1.5;margin:10px 0;color:light-dark(#51495d,#c3b9cf)}button{margin-top:28px;border:0;background:light-dark(#583d80,#d0b5f3);color:light-dark(#fff,#20132f);font-weight:600}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #9871c5;outline-offset:3px}#error{color:light-dark(#a31526,#ffabb5)}.secondary{background:transparent;color:inherit;border:1px solid light-dark(#a19aa9,#736b7e);margin-top:12px}[hidden]{display:none!important}
+</style></head><body>
+<h1 data-i18n="cfg_title">T3 for Pebble</h1>
+<label for="language" data-i18n="cfg_language">Language</label><select id="language"></select>
+<button id="save" type="button" class="secondary" data-i18n="cfg_save">Save language</button>
+<div id="connected" hidden><p data-i18n="cfg_saved"></p><button id="resume" type="button" data-i18n="cfg_open"></button></div>
+<form id="connect">
+<label for="server" data-i18n="cfg_server"></label><input id="server" type="url" inputmode="url" autocomplete="url" required placeholder="https://t3.example.org">
+<p data-i18n="cfg_server_help"></p>
+<label for="code" data-i18n="cfg_code"></label><input id="code" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+<p data-i18n="cfg_code_help"></p>
+<label for="access" data-i18n="cfg_access"></label><select id="access"><option value="read-only" data-i18n="cfg_read"></option><option value="approval-required" data-i18n="cfg_approval"></option><option value="full-access" data-i18n="cfg_full"></option></select>
+<p id="access-help"></p>
+<p id="error" role="alert" hidden></p><button type="submit" data-i18n="cfg_connect"></button>
+</form>
+<button id="disconnect" type="button" class="secondary" hidden data-i18n="cfg_disconnect"></button>
+<script>
+(function(){
+'use strict';
+var initial=__INITIAL_CONFIG__,catalogs=__CATALOGS__;
+var submitted=false;
+var server=document.getElementById('server'),code=document.getElementById('code'),access=document.getElementById('access'),error=document.getElementById('error'),language=document.getElementById('language');
+Object.keys(catalogs).forEach(function(id){var option=document.createElement('option');option.value=id;option.textContent=catalogs[id].language;language.appendChild(option);});
+language.value=catalogs[initial.language]?initial.language:'en';
+server.value=initial.url||'';access.value=initial.access||'read-only';
+function t(key){return catalogs[language.value].strings[key]||catalogs.en.strings[key];}
+function help(){document.getElementById('access-help').textContent=t(access.value==='read-only'?'cfg_read_help':'cfg_write_help');}
+function translate(){document.documentElement.lang=language.value;Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'),function(el){el.textContent=t(el.getAttribute('data-i18n'));});help();}
+language.onchange=translate;access.onchange=help;translate();
+document.getElementById('disconnect').hidden=!initial.connected;
+document.getElementById('connected').hidden=!initial.connected;
+document.getElementById('resume').onclick=function(){close({resume:true});};
+document.getElementById('save').onclick=function(){close({preferences:true});};
+function close(value){value.language=language.value;window.location.href='pebblejs://close#'+encodeURIComponent(JSON.stringify(value));}
+function random(){var bytes=new Uint8Array(32);window.crypto.getRandomValues(bytes);return Array.prototype.map.call(bytes,function(v){return ('0'+v.toString(16)).slice(-2);}).join('');}
+document.getElementById('connect').onsubmit=function(event){event.preventDefault();if(submitted)return;try{if(!window.crypto||!window.crypto.getRandomValues)throw new Error(t('cfg_crypto'));var value={url:server.value.trim(),code:code.value.trim(),access:access.value,verifier:random(),state:random()};submitted=true;close(value);}catch(e){submitted=false;error.textContent=e.message;error.hidden=false;}};
+document.getElementById('disconnect').onclick=function(){close({disconnect:true});};
+})();
+</script></body></html>
