@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libfdt1 libsdl2-2.0-0 libpixman-1-0
-          python -m pip install pebble-tool==5.1.2
+          python -m pip install pebble-tool==5.1.2 uv
           pebble sdk install 4.44
       - run: npm run release
       - name: Upload release assets

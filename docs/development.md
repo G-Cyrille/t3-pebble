@@ -13,6 +13,8 @@ pebble sdk install 4.44
 npm run release
 ```
 
+Pebble Tool 5.1.2 also requires `uv` on PATH to create its SDK Python environment. Install it with `python3 -m pip install uv` if needed.
+
 The checks parse the companion as ES5 and run Node behavior tests plus C list tests under AddressSanitizer and UndefinedBehaviorSanitizer. Release packaging strips source maps and rejects absolute home-directory paths in runtime files. Original build artifacts remain local for debugging.
 
 ## Isolated emulator
