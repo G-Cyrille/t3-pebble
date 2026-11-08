@@ -21,7 +21,7 @@ The checks parse the companion as ES5 and run Node behavior tests plus C list te
 
 ```sh
 node test/fixture-server.js
-pebble install --emulator emery build/t3-pebble-v1.0.0.pbw
+pebble install --emulator emery build/t3-pebble-v1.0.1.pbw
 python3 scripts/emulator-config.py artifacts/fixture-config.json
 pebble screenshot --emulator emery --no-open artifacts/example.png
 ```

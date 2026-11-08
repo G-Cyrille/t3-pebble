@@ -9,7 +9,7 @@ body{margin:0;padding:28px 22px;max-width:480px}h1{font-size:28px;margin:0 0 26p
 <button id="save" type="button" class="secondary" data-i18n="cfg_save">Save language</button>
 <div id="connected" hidden><p data-i18n="cfg_saved"></p><button id="resume" type="button" data-i18n="cfg_open"></button></div>
 <form id="connect">
-<label for="server" data-i18n="cfg_server"></label><input id="server" type="url" inputmode="url" autocomplete="url" required placeholder="https://t3.example.org">
+<label for="server" data-i18n="cfg_server"></label><input id="server" type="url" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" required placeholder="https://t3.example.org">
 <p data-i18n="cfg_server_help"></p>
 <label for="code" data-i18n="cfg_code"></label><input id="code" type="password" autocomplete="off" autocapitalize="none" spellcheck="false" required>
 <p data-i18n="cfg_code_help"></p>
@@ -22,7 +22,7 @@ body{margin:0;padding:28px 22px;max-width:480px}h1{font-size:28px;margin:0 0 26p
 (function(){
 'use strict';
 var initial=__INITIAL_CONFIG__,catalogs=__CATALOGS__;
-var submitted=false;
+var submitted=false,importedUrl='',parsePairingInput=__PAIRING_INPUT__;
 var server=document.getElementById('server'),code=document.getElementById('code'),access=document.getElementById('access'),error=document.getElementById('error'),language=document.getElementById('language');
 Object.keys(catalogs).forEach(function(id){var option=document.createElement('option');option.value=id;option.textContent=catalogs[id].language;language.appendChild(option);});
 language.value=catalogs[initial.language]?initial.language:'en';
@@ -36,8 +36,14 @@ document.getElementById('connected').hidden=!initial.connected;
 document.getElementById('resume').onclick=function(){close({resume:true});};
 document.getElementById('save').onclick=function(){close({preferences:true});};
 function close(value){value.language=language.value;window.location.href='pebblejs://close#'+encodeURIComponent(JSON.stringify(value));}
+function importLink(){
+if(importedUrl&&server.value.trim()!==importedUrl){code.value='';importedUrl='';}
+var value=parsePairingInput(server.value);
+if(value&&value.code){server.value=value.url;code.value=value.code;importedUrl=value.url;error.hidden=true;}
+}
+server.oninput=importLink;server.onchange=importLink;
 function random(){var bytes=new Uint8Array(32);window.crypto.getRandomValues(bytes);return Array.prototype.map.call(bytes,function(v){return ('0'+v.toString(16)).slice(-2);}).join('');}
-document.getElementById('connect').onsubmit=function(event){event.preventDefault();if(submitted)return;try{if(!window.crypto||!window.crypto.getRandomValues)throw new Error(t('cfg_crypto'));var value={url:server.value.trim(),code:code.value.trim(),access:access.value,verifier:random(),state:random()};submitted=true;close(value);}catch(e){submitted=false;error.textContent=e.message;error.hidden=false;}};
+document.getElementById('connect').onsubmit=function(event){event.preventDefault();if(submitted)return;try{if(!window.crypto||!window.crypto.getRandomValues)throw new Error(t('cfg_crypto'));var target=parsePairingInput(server.value);if(!target)throw new Error(t('cfg_invalid_link'));var value={url:target.url,code:target.code||code.value.trim(),access:access.value,verifier:random(),state:random()};submitted=true;close(value);}catch(e){submitted=false;error.textContent=e.message;error.hidden=false;}};
 document.getElementById('disconnect').onclick=function(){close({disconnect:true});};
 })();
 </script></body></html>

@@ -1,5 +1,3 @@
-First public release for Pebble Time 2.
+Paste a T3 pairing link into settings to fill the server address and masked code automatically. Supports direct server links, hosted T3 links and T3 app links. Separate address/code entry remains available.
 
-English by default and French selectable without reconnecting. Four thread categories, automatic pagination and refresh, local unread state, saved replies and system dictation. Connect directly to your own T3 server with a pairing code.
-
-iPhone compatibility reports and translation contributions are welcome on GitHub. iOS setup and dictation are not yet validated.
+The full link is not stored, and changing the server clears a code imported from another link. Existing connections and language preferences are preserved.

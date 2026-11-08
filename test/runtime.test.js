@@ -179,3 +179,28 @@ test('unknown languages fall back to English without losing the saved connection
   assert.equal(app.messages[0].Language, 'en');
   assert.equal(JSON.parse(app.storage.getItem('t3.connection')).token, connection.token);
 });
+
+test('pasting a pairing link fills the hidden code and submits only its origin', () => {
+  const {document, result} = formRuntime();
+  const server = document.getElementById('server'), code = document.getElementById('code');
+  server.value = 'https://app.t3.codes/pair?host=https%3A%2F%2Ft3.example.org#token=PRIVATE-CODE';
+  server.oninput();
+  assert.equal(server.value, 'https://t3.example.org');
+  assert.equal(code.value, 'PRIVATE-CODE');
+  document.getElementById('connect').onsubmit({preventDefault() {}});
+  assert.equal(result().url, 'https://t3.example.org');
+  assert.equal(result().code, 'PRIVATE-CODE');
+  assert.equal(result().access, 'read-only');
+});
+
+test('replacing an imported link never reuses its code for a different server', () => {
+  const {document} = formRuntime();
+  const server = document.getElementById('server'), code = document.getElementById('code');
+  server.value = 'https://first.example.org/pair#token=FIRST'; server.onchange();
+  assert.equal(code.value, 'FIRST');
+  server.value = 'https://second.example.org'; server.oninput();
+  assert.equal(code.value, '');
+  server.value = 'https://second.example.org/pair#token=SECOND'; server.oninput();
+  assert.equal(server.value, 'https://second.example.org');
+  assert.equal(code.value, 'SECOND');
+});

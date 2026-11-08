@@ -124,8 +124,8 @@
     "cfg_open": "Open threads on the watch",
     "cfg_language": "Language",
     "cfg_save": "Save language",
-    "cfg_server": "T3 server address",
-    "cfg_server_help": "One address for all your linked machines. Enable your phone VPN if needed.",
+    "cfg_server": "T3 address or pairing link",
+    "cfg_server_help": "Paste the T3 pairing link to fill the address and code, or enter them separately. Your phone must reach the server, using your VPN if needed.",
     "cfg_code": "T3 pairing code",
     "cfg_code_help": "Create a new code in T3 Connections. It is single-use and expires after a few minutes.",
     "cfg_access": "Watch permissions",
@@ -137,6 +137,7 @@
     "cfg_connect": "Connect watch",
     "cfg_disconnect": "Forget connection",
     "cfg_crypto": "This browser cannot create a secure connection. Update your Pebble app.",
-    "image": "Image"
+    "image": "Image",
+    "cfg_invalid_link": "Invalid T3 address or pairing link. Copy a fresh pairing link from T3 Connections."
   }
 }

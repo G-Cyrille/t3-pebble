@@ -1,7 +1,7 @@
 {
   "name": "T3 for Pebble",
   "package": "t3-pebble",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "uuid": "7f49ca50-ad16-4da5-a138-e2400a3a2bcf",
   "type": "watchapp",
   "category": "tools",

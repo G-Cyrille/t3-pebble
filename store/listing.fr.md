@@ -4,7 +4,7 @@ Lis les threads T3 Code et réponds depuis une Pebble Time 2. Quatre catégories
 
 Le bouton central ouvre les réponses prédéfinies, avec le résumé en trois lignes sélectionné. Remonte pour accéder aux actions. Chaque réponse passe par un brouillon avant envoi. La dictée dépend de l’app Pebble du téléphone et de son service de reconnaissance vocale.
 
-Connecte ton propre serveur T3 avec un code d’appairage. Une adresse suffit pour les machines liées dans T3. Le téléphone doit joindre le serveur en HTTPS ou via Tailscale. Aucun relais ni suivi analytique n’est hébergé par le développeur. Demander un résumé envoie une consigne à ton agent et peut consommer des crédits fournisseur.
+Colle le lien d’appairage T3 dans les réglages pour remplir automatiquement l’adresse et le code, ou saisis-les séparément. Une adresse suffit pour les machines liées dans T3. Le téléphone doit joindre le serveur en HTTPS ou via Tailscale. Aucun relais ni suivi analytique n’est hébergé par le développeur. Demander un résumé envoie une consigne à ton agent et peut consommer des crédits fournisseur.
 
 Anglais par défaut, français sélectionnable sans réappairage. Contributions de traduction bienvenues sur GitHub.
 

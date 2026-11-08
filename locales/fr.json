@@ -124,8 +124,8 @@
     "cfg_open": "Ouvrir les threads sur la montre",
     "cfg_language": "Langue",
     "cfg_save": "Enregistrer la langue",
-    "cfg_server": "Adresse de T3",
-    "cfg_server_help": "Une seule adresse pour tes machines liées. Active le VPN du téléphone si nécessaire.",
+    "cfg_server": "Adresse ou lien T3",
+    "cfg_server_help": "Colle le lien d’appairage T3 pour remplir l’adresse et le code, ou saisis-les séparément. Le téléphone doit joindre le serveur, via ton VPN si nécessaire.",
     "cfg_code": "Code d’appairage T3",
     "cfg_code_help": "Crée un nouveau code dans T3. Il ne sert qu’une fois et expire après quelques minutes.",
     "cfg_access": "Accès depuis la montre",
@@ -137,6 +137,7 @@
     "cfg_connect": "Connecter la montre",
     "cfg_disconnect": "Oublier la connexion",
     "cfg_crypto": "Ce navigateur ne permet pas une connexion sécurisée. Mets l’app Pebble à jour.",
-    "image": "Image"
+    "image": "Image",
+    "cfg_invalid_link": "Adresse ou lien T3 invalide. Copie un nouveau lien d’appairage depuis Connections dans T3."
   }
 }

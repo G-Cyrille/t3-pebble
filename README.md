@@ -4,7 +4,7 @@ Read your T3 Code threads and reply from a Pebble Time 2. Buttons, saved replies
 
 ![Thread list](store/screenshots/emery_threads.png)
 
-[Install from the Pebble Appstore](https://apps.repebble.com/f09e2c791fbb4dd6a175e69b) · [Download 1.0.0](https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.0.0)
+[Install from the Pebble Appstore](https://apps.repebble.com/f09e2c791fbb4dd6a175e69b) · [Download 1.0.1](https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.0.1)
 
 English is the default. French is available in the Pebble app settings. [More translations are welcome](TRANSLATING.md).
 
@@ -12,7 +12,9 @@ English is the default. French is available in the Pebble app settings. [More tr
 
 1. Run a T3 Code server with MCP and pairing-code support. Connect any other machines through T3's Connections screen.
 2. Install T3 for Pebble, then open its settings in the Pebble mobile app.
-3. Enter **your own T3 server address** and a fresh pairing code from T3 Connections. Choose permissions and connect.
+3. Paste a fresh **pairing link from T3 Connections** into **T3 address or pairing link**. The server address and masked code fill automatically. You can also enter the address and code separately. Choose permissions and connect.
+
+Direct server links, hosted T3 pairing links, and `t3code://pair?pairingUrl=...` app links are accepted. Only the extracted server address is saved; the full link is never stored. Changing the server clears a code imported from a previous link.
 
 One connection discovers threads on that server and its linked machines. Your phone must reach the server, using HTTPS or your own Tailscale VPN. There is no developer-hosted relay, account, or configuration website. The settings page is bundled with the app.
 
@@ -61,7 +63,7 @@ Install Node.js 22+, a C compiler for native model tests, Python 3, [Pebble Tool
 npm ci
 npm run check
 npm run release
-pebble install --emulator emery build/t3-pebble-v1.0.0.pbw
+pebble install --emulator emery build/t3-pebble-v1.0.1.pbw
 ```
 
 `pebble build` also regenerates translations and the embedded settings page. Release packaging removes SDK source maps containing local paths. [Development](docs/development.md), [contribution policy](CONTRIBUTING.md), [planned work](TODO.md), and [publication procedure](store/PUBLISHING.md).
@@ -74,7 +76,7 @@ AI-assisted issues and PRs are welcome. Disclose the agents and models used for 
 
 Lis les threads T3 et réponds depuis une Pebble Time 2. Dans les réglages de l'app Pebble, choisis Français puis enregistre la langue. La connexion existante reste enregistrée.
 
-Renseigne l'adresse de **ton propre serveur T3** et un nouveau code depuis Connections. Une seule connexion suffit pour les machines liées. Le téléphone doit joindre le serveur, en HTTPS ou via ton VPN Tailscale. Aucun relais n'est hébergé par le développeur.
+Colle un nouveau lien d’appairage depuis Connections dans « Adresse ou lien T3 » : l’adresse et le code masqué se remplissent automatiquement. La saisie séparée reste disponible. Une seule connexion suffit pour les machines liées. Le téléphone doit joindre le serveur, en HTTPS ou via ton VPN Tailscale. Aucun relais n'est hébergé par le développeur.
 
 Un appui long sur Haut change de catégorie. Dans un thread, le bouton central ouvre les actions et les réponses, avec le résumé en trois lignes sélectionné par défaut. Remonte pour atteindre Rafraîchir, Settle, Snooze et Marquer non lu. Chaque réponse passe par un brouillon avant envoi.
 
