@@ -14,3 +14,5 @@
 - [x] iPhone reports invited without claiming untested support.
 
 The 1.0.0 store-served PBW matched the GitHub release byte for byte and was installed on a physical Time 2 using Android. The saved connection loaded its linked-thread metadata successfully. Sending and real dictation in this release remain unverified on hardware.
+
+1.0.1: pairing-link parsing and native form validation checked in a browser, followed by OAuth pairing and thread reading with the Time 2 emulator and synthetic server. All 55 tests and GitHub checks passed. The store-served PBW matched GitHub byte for byte and loaded the saved connection on a physical Time 2 with Android. Pasting a fresh link on the physical phone has not yet been checked.

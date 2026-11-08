@@ -25,9 +25,9 @@
   },
   "appStoreId": "f09e2c791fbb4dd6a175e69b",
   "appStoreUrl": "https://apps.repebble.com/f09e2c791fbb4dd6a175e69b",
-  "appStoreVersion": "1.0.0",
-  "appStoreReleaseUrl": "https://appstore-api.repebble.com/api/assets/pbw/f09e2c791fbb4dd6a175e69b/1.0.0/748ae8f0-99b6-4c48-9a15-b8bef62558f6.pbw",
+  "appStoreVersion": "1.0.1",
+  "appStoreReleaseUrl": "https://appstore-api.repebble.com/api/assets/pbw/f09e2c791fbb4dd6a175e69b/1.0.1/1f4c7ead-0cdc-4e58-9464-3687611db643.pbw",
   "appStoreStatus": "published",
-  "releaseUrl": "https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.0.0",
-  "releaseSha256": "309e77ffb9e7c155df7e10a255c458cb37ed08555be0a26c87720dd56747cfee"
+  "releaseUrl": "https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.0.1",
+  "releaseSha256": "cc5ec137b326ad6a70e23b84c2ef7381a22bef3f66088b13c2200a6f085b4922"
 }
