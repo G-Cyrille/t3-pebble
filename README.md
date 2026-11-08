@@ -4,6 +4,8 @@ Read your T3 Code threads and reply from a Pebble Time 2. Buttons, saved replies
 
 ![Thread list](store/screenshots/emery_threads.png)
 
+[Install from the Pebble Appstore](https://apps.repebble.com/f09e2c791fbb4dd6a175e69b) · [Download 1.0.0](https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.0.0)
+
 English is the default. French is available in the Pebble app settings. [More translations are welcome](TRANSLATING.md).
 
 ## Connect

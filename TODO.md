@@ -6,7 +6,7 @@ These are candidates, not promised release dates. Use GitHub issues to discuss p
 
 - [ ] Collect iPhone success and failure reports using the dedicated issue form, including pairing, persistence, VPN reachability, and dictation.
 - [ ] Validate dictation with real Android speech services and record the app/service versions.
-- [ ] Validate the store-installed 1.0 release on physical Time 2 hardware, including language changes, sending, and Bluetooth reconnection.
+- [ ] Complete physical Time 2 validation of language changes, sending, and Bluetooth reconnection. The store-served 1.0 package has been installed and its saved connection loaded the thread list.
 - [ ] Test token expiry, phone restart, VPN changes, and server upgrades on physical hardware.
 - [ ] Add other Pebble models only after checking layout, available RAM, Bluetooth payload limits, and microphone support. Keep emery as the current packaged target.
 

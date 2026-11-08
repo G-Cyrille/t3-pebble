@@ -22,5 +22,12 @@
     "iconLarge": "store/assets/icon-144.png",
     "banner": "store/assets/banner-720x320.png",
     "screenshots": "store/screenshots"
-  }
+  },
+  "appStoreId": "f09e2c791fbb4dd6a175e69b",
+  "appStoreUrl": "https://apps.repebble.com/f09e2c791fbb4dd6a175e69b",
+  "appStoreVersion": "1.0.0",
+  "appStoreReleaseUrl": "https://appstore-api.repebble.com/api/assets/pbw/f09e2c791fbb4dd6a175e69b/1.0.0/748ae8f0-99b6-4c48-9a15-b8bef62558f6.pbw",
+  "appStoreStatus": "published",
+  "releaseUrl": "https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.0.0",
+  "releaseSha256": "309e77ffb9e7c155df7e10a255c458cb37ed08555be0a26c87720dd56747cfee"
 }

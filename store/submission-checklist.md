@@ -1,14 +1,16 @@
 # Release checklist
 
-- [ ] Public source and license checked.
-- [ ] No personal server defaults, paths, credentials, or historical private refs published.
-- [ ] English/French settings and watch screens checked in the emulator.
-- [ ] Language change preserves pairing.
-- [ ] CI check and release build pass.
-- [ ] PBW has no source maps or absolute home-directory paths.
-- [ ] Synthetic screenshots, icons, description, privacy policy, and tutorial inspected.
-- [ ] GitHub release PBW and SHA256SUMS published.
-- [ ] Public Appstore listing and runtime package verified.
-- [ ] Store-served PBW installed on physical Time 2.
+- [x] Public source and license checked.
+- [x] No personal server defaults, paths, credentials, or historical private refs published.
+- [x] English/French settings and watch screens checked in the emulator.
+- [x] Language change preserves pairing.
+- [x] CI check and release build pass.
+- [x] PBW has no source maps or absolute home-directory paths.
+- [x] Synthetic screenshots, icons, description, privacy policy, and tutorial inspected.
+- [x] GitHub release PBW and SHA256SUMS published.
+- [x] Public Appstore listing and runtime package verified.
+- [x] Store-served PBW installed on physical Time 2.
 - [ ] Physical dictation checked. Pending compatibility work belongs in TODO.md.
-- [ ] iPhone reports invited without claiming untested support.
+- [x] iPhone reports invited without claiming untested support.
+
+The 1.0.0 store-served PBW matched the GitHub release byte for byte and was installed on a physical Time 2 using Android. The saved connection loaded its linked-thread metadata successfully. Sending and real dictation in this release remain unverified on hardware.
