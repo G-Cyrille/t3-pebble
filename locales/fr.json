@@ -138,6 +138,25 @@
     "cfg_disconnect": "Oublier la connexion",
     "cfg_crypto": "Ce navigateur ne permet pas une connexion sécurisée. Mets l’app Pebble à jour.",
     "image": "Image",
-    "cfg_invalid_link": "Adresse ou lien T3 invalide. Copie un nouveau lien d’appairage depuis Connections dans T3."
+    "cfg_invalid_link": "Adresse ou lien T3 invalide. Copie un nouveau lien d’appairage depuis Connections dans T3.",
+    "new_thread": "Nouveau thread",
+    "choose_environment": "Choisir la machine",
+    "choose_project": "Choisir le projet",
+    "previous_page": "Précédents",
+    "next_page": "Suivants",
+    "no_choices": "Aucun choix disponible",
+    "new_draft_hint": "Centre : créer · Retour : annuler",
+    "new_dictate": "Dicter la demande",
+    "creation_retry_hint": "Centre : réessayer · Retour",
+    "creation_pending_title": "Création à confirmer",
+    "creation_pending": "Une création reste à confirmer. Reprends-la depuis Nouveau thread.",
+    "creation_unconfirmed": "Création non confirmée. Réessaie le même brouillon ; T3 réutilisera son identifiant.",
+    "creation_choose_again": "Choisis à nouveau la machine et le projet depuis Nouveau thread.",
+    "creation_connection_changed": "Une création non confirmée dépend de l’ancienne connexion. Vérifie T3 avant d’oublier cette connexion dans les réglages.",
+    "cfg_creation_warning": "Oublier cette connexion effacera aussi le suivi d’une création non confirmée. Vérifie T3 avant de la relancer.",
+    "creating_thread": "Création du thread…",
+    "new_instructions": "Appuie au centre pour dicter ta demande. Tu pourras la relire avant de créer le thread.",
+    "new_microphone": "La dictée est indisponible. Vérifie le service vocal du téléphone puis réessaie.",
+    "creation_storage": "Impossible d’enregistrer la demande sur le téléphone. Libère de l’espace puis réessaie."
   }
 }

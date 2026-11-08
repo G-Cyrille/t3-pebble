@@ -11,9 +11,9 @@ static int s_language;
 #define FOOTER_HEIGHT 22
 
 typedef enum { VIEW_LIST, VIEW_LOADING, VIEW_READ, VIEW_ACTIONS, VIEW_DRAFT,
-               VIEW_ERROR, VIEW_SENT, VIEW_MANAGE, VIEW_SNOOZE } View;
-typedef enum { CMD_LIST = 1, CMD_READ, CMD_SEND, CMD_POLL, CMD_RETRY, CMD_ORGANIZE, CMD_SEEN } Command;
-typedef enum { MSG_LIST = 1, MSG_ROW, MSG_READ, MSG_ERROR, MSG_SENT, MSG_NOTICE, MSG_CONNECTED, MSG_RESET, MSG_UPDATED } Kind;
+               VIEW_ERROR, VIEW_SENT, VIEW_MANAGE, VIEW_SNOOZE, VIEW_ENVIRONMENTS, VIEW_PROJECTS, VIEW_NEW_READY, VIEW_NEW_DRAFT } View;
+typedef enum { CMD_LIST = 1, CMD_READ, CMD_SEND, CMD_POLL, CMD_RETRY, CMD_ORGANIZE, CMD_SEEN, CMD_ENVIRONMENTS, CMD_PROJECTS, CMD_CREATE, CMD_CREATE_ACK } Command;
+typedef enum { MSG_LIST = 1, MSG_ROW, MSG_READ, MSG_ERROR, MSG_SENT, MSG_NOTICE, MSG_CONNECTED, MSG_RESET, MSG_UPDATED, MSG_CHOICES, MSG_CHOICE, MSG_CREATED, MSG_CREATION_DRAFT } Kind;
 
 static Window *s_window;
 static MenuLayer *s_menu;
@@ -41,6 +41,14 @@ static bool s_busy, s_read_only, s_pending;
 static char s_route[17], s_thread_title[256], s_text[TEXT_SIZE], s_draft[DRAFT_SIZE];
 static char s_header_text[96], s_footer_text[96], s_notice[160];
 
+static bool s_creating, s_new_submitted, s_choice_receiving;
+static View s_new_origin, s_new_stage, s_choice_view;
+static char s_created_receipt[33];
+static char s_environment_title[48];
+static char s_environment[17], s_project[17], s_creation_id[33], s_new_title[96], s_new_draft[DRAFT_SIZE];
+static Row s_choices[PAGE_SIZE], s_choice_staging[PAGE_SIZE];
+static int s_choice_count, s_choice_offset, s_choice_total, s_choice_expected, s_choice_received;
+
 static const TextId s_action_labels[] = {
   T_REPLY_SUMMARY, T_REPLY_DICTATE, T_REPLY_CONTINUE, T_REPLY_WAITING,
   T_REPLY_RECOMMEND, T_REPLY_COMPUTER, T_REPLY_LATEST
@@ -61,6 +69,13 @@ static void show_replies(void) {
   show(VIEW_ACTIONS);
 }
 static void dictate(void);
+static void cancel_creation(void) { s_creating = false; s_choice_receiving = false; show(s_new_origin); }
+static void start_creation(void) {
+  s_new_origin = s_view; s_creating = true; s_new_submitted = false;
+  s_new_stage = s_choice_view = VIEW_ENVIRONMENTS;
+  s_new_draft[0] = '\0'; s_creation_id[0] = '\0';
+  request(CMD_ENVIRONMENTS, 0, 0);
+}
 static void menu_select(MenuLayer *menu, MenuIndex *index, void *context);
 static void maybe_prefetch(int direction);
 static uint16_t row_count(MenuLayer *menu, uint16_t section, void *context);
@@ -101,7 +116,7 @@ static void body(const char *value) {
 }
 static void clear_timeout(void) { if (s_timeout) { app_timer_cancel(s_timeout); s_timeout = NULL; } s_busy = false; }
 static void fail(const char *message) {
-  clear_timeout(); s_list.receiving = false;
+  clear_timeout(); s_list.receiving = false; s_choice_receiving = false;
   if (s_auto_refresh) { s_auto_refresh = false; if (s_view == VIEW_LIST) footer(tr(T_REFRESH_UNAVAILABLE)); return; }
   if (s_last_command == CMD_LIST) {
     s_list_error = true;
@@ -113,7 +128,7 @@ static void fail(const char *message) {
 static void timed_out(void *context) { s_timeout = NULL; fail(tr(T_PHONE_TIMEOUT)); }
 
 static void request(Command command, int offset, int action) {
-  bool background = command == CMD_POLL || command == CMD_SEEN;
+  bool background = command == CMD_POLL || command == CMD_SEEN || command == CMD_CREATE_ACK;
   if (s_busy && background) return;
   if (!background) {
     APP_LOG(APP_LOG_LEVEL_INFO, "Request command=%d offset=%d", command, offset);
@@ -122,7 +137,7 @@ static void request(Command command, int offset, int action) {
     if (command == CMD_LIST && (action == 1 || action == 4)) s_last_refresh = time(NULL);
     if (command == CMD_LIST && action != 4) s_dirty = false;
     s_last_command = command; s_last_offset = offset; s_last_action = action;
-    s_list.receiving = false;
+    s_list.receiving = false; s_choice_receiving = false;
     if (command == CMD_LIST) s_list_mode = action == 2 ? LIST_APPEND : action == 3 ? LIST_PREPEND : LIST_REPLACE;
     else if (command == CMD_ORGANIZE) s_list_mode = LIST_REPLACE;
     s_list_error = false;
@@ -139,13 +154,18 @@ static void request(Command command, int offset, int action) {
   dict_write_int32(out, MESSAGE_KEY_Action, action);
   dict_write_int32(out, MESSAGE_KEY_Category, s_category);
   dict_write_cstring(out, MESSAGE_KEY_Revision, s_revision);
-  if (command != CMD_LIST) dict_write_cstring(out, MESSAGE_KEY_Route, s_route);
+  if (command == CMD_PROJECTS) dict_write_cstring(out, MESSAGE_KEY_Route, s_environment);
+  else if (command == CMD_CREATE) dict_write_cstring(out, MESSAGE_KEY_Route, s_project);
+  else if (command != CMD_LIST) dict_write_cstring(out, MESSAGE_KEY_Route, s_route);
   else if ((action == 0 || action == 1) && s_list.count) dict_write_cstring(out, MESSAGE_KEY_Route, s_list.rows[s_list.selected].route);
   if (command == CMD_LIST || command == CMD_ORGANIZE) {
     dict_write_int32(out, MESSAGE_KEY_Limit, s_list_mode == LIST_PREPEND ? s_list.base - offset : s_list_mode == LIST_REPLACE && s_list.count ? s_list.count : PAGE_SIZE);
     dict_write_int32(out, MESSAGE_KEY_Index, s_list.selected);
   }
   if (command == CMD_SEND) dict_write_cstring(out, MESSAGE_KEY_Message, s_draft);
+  if (command == CMD_CREATE) dict_write_cstring(out, MESSAGE_KEY_Message, s_new_draft);
+  if (command == CMD_CREATE || command == CMD_CREATE_ACK) dict_write_cstring(out, MESSAGE_KEY_Creation, s_creation_id);
+  if (command == CMD_READ && s_created_receipt[0]) dict_write_cstring(out, MESSAGE_KEY_Creation, s_created_receipt);
   if (command == CMD_SEEN) dict_write_cstring(out, MESSAGE_KEY_Message, s_read_token);
   AppMessageResult result = app_message_outbox_send();
   if (!background) {
@@ -170,7 +190,7 @@ static void scroll_by(int direction) {
   if (y < -bottom) y = -bottom;
   scroll_layer_set_content_offset(s_scroll, GPoint(0, y), false);
 }
-static bool menu_visible(void) { return s_view == VIEW_LIST || s_view == VIEW_ACTIONS || s_view == VIEW_MANAGE || s_view == VIEW_SNOOZE; }
+static bool menu_visible(void) { return s_view == VIEW_LIST || s_view == VIEW_ACTIONS || s_view == VIEW_MANAGE || s_view == VIEW_SNOOZE || s_view == VIEW_ENVIRONMENTS || s_view == VIEW_PROJECTS; }
 static void up(ClickRecognizerRef recognizer, void *context) {
   s_last_input = time(NULL);
   if (s_view == VIEW_LIST && s_busy && !s_auto_refresh && s_list_mode == LIST_REPLACE) return;
@@ -195,8 +215,13 @@ static void select_click(ClickRecognizerRef recognizer, void *context) {
   s_last_input = time(NULL);
   if (menu_visible()) { MenuIndex index = menu_layer_get_selected_index(s_menu); menu_select(s_menu, &index, NULL); }
   else if (s_view == VIEW_READ) show_replies();
+  else if (s_view == VIEW_NEW_READY) dictate();
+  else if (s_view == VIEW_NEW_DRAFT) { s_new_submitted = true; request(CMD_CREATE, 0, 0); }
   else if (s_view == VIEW_DRAFT) request(CMD_SEND, 0, 0);
-  else if (s_view == VIEW_ERROR) request(s_last_command ? s_last_command : CMD_LIST, s_last_offset, s_last_action);
+  else if (s_view == VIEW_ERROR) {
+    if (s_creating && s_new_stage == VIEW_NEW_READY) { show(VIEW_NEW_READY); dictate(); }
+    else request(s_last_command ? s_last_command : CMD_LIST, s_last_offset, s_last_action);
+  }
   else if (s_view == VIEW_SENT) {
     if (s_route[0]) request(CMD_READ, -1, 1); else request(CMD_LIST, 0, 1);
   }
@@ -204,6 +229,17 @@ static void select_click(ClickRecognizerRef recognizer, void *context) {
 static void back(ClickRecognizerRef recognizer, void *context) {
   s_last_input = time(NULL);
   clear_timeout(); s_list.receiving = false; s_auto_refresh = false; s_request++;
+  if (s_creating) {
+    s_choice_receiving = false;
+    if (s_view == VIEW_ERROR && s_new_stage == VIEW_NEW_DRAFT) { body(s_new_draft); show(VIEW_NEW_DRAFT); }
+    else if (s_view == VIEW_NEW_DRAFT && !s_new_submitted) { show(VIEW_NEW_READY); }
+    else if (s_view == VIEW_NEW_READY || (s_view == VIEW_ERROR && s_new_stage == VIEW_NEW_READY)) {
+      s_new_stage = s_choice_view = VIEW_PROJECTS; request(CMD_PROJECTS, 0, 0);
+    } else if (s_view == VIEW_PROJECTS || (s_view == VIEW_LOADING && s_last_command == CMD_PROJECTS)) {
+      s_new_stage = s_choice_view = VIEW_ENVIRONMENTS; request(CMD_ENVIRONMENTS, 0, 0);
+    } else cancel_creation();
+    return;
+  }
   if (s_view == VIEW_SNOOZE) show(s_snooze_origin);
   else if (s_view == VIEW_MANAGE) {
     if (s_manage_from_list) {
@@ -219,6 +255,7 @@ static void back(ClickRecognizerRef recognizer, void *context) {
 }
 static void long_up(ClickRecognizerRef recognizer, void *context) {
   s_last_input = time(NULL);
+  if (s_creating) return;
   s_category = (s_category + 1) % ARRAY_LENGTH(s_categories);
   s_route[0] = '\0'; s_draft[0] = '\0';
   memset(&s_list, 0, sizeof(s_list)); request(CMD_LIST, 0, 0);
@@ -251,28 +288,33 @@ static void clicks(void *context) {
   window_single_click_subscribe(BUTTON_ID_BACK, back);
 }
 static int management_count(bool thread) {
-  if (!thread) return 1;
-  return s_read_only ? 2 : s_category == 3 ? 3 : 4;
+  if (!thread) return s_read_only ? 1 : 2;
+  return s_read_only ? 2 : s_category == 3 ? 4 : 5;
 }
 static const char *management_label(int row, bool thread) {
   if (row == 0) return tr(T_REFRESH_ALL);
+  if (!s_read_only && row == 1) return tr(T_NEW_THREAD);
   if (row == management_count(thread) - 1) return tr(T_MARK_UNREAD);
+  if (!s_read_only) row--;
   if (row == 1) return s_category == 3 ? tr(T_UNSETTLE) : tr(T_SETTLE);
   return s_category == 2 ? tr(T_WAKE) : tr(T_SNOOZE);
 }
 static void management_select(int row, bool thread) {
   if (row == 0) { s_route[0] = '\0'; request(CMD_LIST, s_list.base, 1); }
+  else if (!s_read_only && row == 1) start_creation();
   else if (thread && row == management_count(thread) - 1) {
     // An already queued display receipt must not undo the user's explicit action.
     if (s_seen_timer) { app_timer_cancel(s_seen_timer); s_seen_timer = NULL; }
     s_read_token[0] = '\0';
     request(CMD_ORGANIZE, s_list.base, 7);
   }
-  else if (row == 1) request(CMD_ORGANIZE, s_list.base, s_category == 3 ? 5 : 1);
+  else if (row == 2) request(CMD_ORGANIZE, s_list.base, s_category == 3 ? 5 : 1);
   else if (s_category == 2) request(CMD_ORGANIZE, s_list.base, 6);
   else { s_snooze_origin = s_view; show(VIEW_SNOOZE); }
 }
 static uint16_t row_count(MenuLayer *menu, uint16_t section, void *context) {
+  if (s_view == VIEW_ENVIRONMENTS || s_view == VIEW_PROJECTS)
+    return s_choice_count ? s_choice_count + (s_choice_offset > 0 ? 1 : 0) + (s_choice_offset + s_choice_count < s_choice_total ? 1 : 0) : 1;
   if (s_view == VIEW_SNOOZE) return ARRAY_LENGTH(s_snooze_labels);
   if (s_view == VIEW_MANAGE) return management_count(s_manage_thread);
   if (s_view == VIEW_ACTIONS) return management_count(true) + (s_read_only ? 1 : ARRAY_LENGTH(s_action_labels) + (s_pending ? 1 : 0));
@@ -281,7 +323,14 @@ static uint16_t row_count(MenuLayer *menu, uint16_t section, void *context) {
 static void draw_row(GContext *ctx, const Layer *cell, MenuIndex *index, void *context) {
   const char *title = "", *subtitle = NULL;
   int row = index->row - (s_view == VIEW_LIST ? list_top() : 0);
-  if (s_view == VIEW_SNOOZE) title = tr(s_snooze_labels[row]);
+  if (s_view == VIEW_ENVIRONMENTS || s_view == VIEW_PROJECTS) {
+    int choice = row - (s_choice_offset > 0 ? 1 : 0);
+    if (!s_choice_count) title = tr(T_NO_CHOICES);
+    else if (choice < 0) title = tr(T_PREVIOUS_PAGE);
+    else if (choice >= s_choice_count) title = tr(T_NEXT_PAGE);
+    else { title = s_choices[choice].title; subtitle = s_choices[choice].subtitle; }
+  }
+  else if (s_view == VIEW_SNOOZE) title = tr(s_snooze_labels[row]);
   else if (s_view == VIEW_MANAGE) title = management_label(row, s_manage_thread);
   else if (s_view == VIEW_ACTIONS) {
     int actions = management_count(true);
@@ -294,7 +343,7 @@ static void draw_row(GContext *ctx, const Layer *cell, MenuIndex *index, void *c
     title = s_list_error ? tr(T_RETRY) : !s_list.count && !s_busy ? tr(T_NO_THREADS) : tr(T_LOADING);
     subtitle = s_list_error ? tr(T_SELECT_RETRY) : NULL;
   }
-  if (s_view == VIEW_LIST) {
+  if (s_view == VIEW_LIST || s_view == VIEW_ENVIRONMENTS || s_view == VIEW_PROJECTS) {
     GRect bounds = layer_get_bounds(cell);
     graphics_context_set_text_color(ctx, menu_cell_layer_is_highlighted(cell) ? GColorWhite : GColorBlack);
     graphics_draw_text(ctx, title, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD),
@@ -311,7 +360,7 @@ static void draw_row(GContext *ctx, const Layer *cell, MenuIndex *index, void *c
   }
 }
 static int16_t row_height(MenuLayer *menu, MenuIndex *index, void *context) {
-  return s_view == VIEW_LIST ? 66 : s_view == VIEW_ACTIONS && index->row == management_count(true) ? 53 : 44;
+  return s_view == VIEW_LIST || s_view == VIEW_ENVIRONMENTS || s_view == VIEW_PROJECTS ? 66 : s_view == VIEW_ACTIONS && index->row == management_count(true) ? 53 : 44;
 }
 static void draw_tabs(Layer *layer, GContext *ctx) {
   const int widths[] = {38, 54, 56, 52};
@@ -328,20 +377,43 @@ static void draw_tabs(Layer *layer, GContext *ctx) {
 }
 static void dictation_result(DictationSession *session, DictationSessionStatus status, char *transcription, void *context) {
   if (status != DictationSessionStatusSuccess) {
-    if (status == DictationSessionStatusFailureTranscriptionRejected) { request(CMD_READ, s_page, 0); return; }
+    if (status == DictationSessionStatusFailureTranscriptionRejected) { if (s_creating) show(VIEW_NEW_READY); else request(CMD_READ, s_page, 0); return; }
     fail(tr(T_DICTATION_UNAVAILABLE)); return;
   }
   if (strlen(transcription) >= sizeof(s_draft)) { fail(tr(T_DICTATION_LONG)); return; }
+  if (s_creating) {
+    copy(s_new_draft, sizeof(s_new_draft), transcription); s_new_stage = VIEW_NEW_DRAFT;
+    body(s_new_draft); show(VIEW_NEW_DRAFT); return;
+  }
   copy(s_draft, sizeof(s_draft), transcription);
   body(s_draft); show(VIEW_DRAFT);
 }
 static void dictate(void) {
-  if (!s_dictation) { fail(tr(T_NO_MICROPHONE)); return; }
+  if (!s_dictation) { fail(s_creating ? tr(T_NEW_MICROPHONE) : tr(T_NO_MICROPHONE)); return; }
   DictationSessionStatus result = dictation_session_start(s_dictation);
   if (result != DictationSessionStatusSuccess) fail(tr(T_DICTATION_FAILED));
 }
 static void menu_select(MenuLayer *menu, MenuIndex *index, void *context) {
   int row = index->row;
+  if (s_view == VIEW_ENVIRONMENTS || s_view == VIEW_PROJECTS) {
+    if (!s_choice_count) return;
+    int choice = row - (s_choice_offset > 0 ? 1 : 0);
+    Command command = s_view == VIEW_ENVIRONMENTS ? CMD_ENVIRONMENTS : CMD_PROJECTS;
+    if (choice < 0) { request(command, s_choice_offset - PAGE_SIZE, 0); return; }
+    if (choice >= s_choice_count) { request(command, s_choice_offset + s_choice_count, 0); return; }
+    if (s_view == VIEW_ENVIRONMENTS) {
+      copy(s_environment, sizeof(s_environment), s_choices[choice].route);
+      copy(s_environment_title, sizeof(s_environment_title), s_choices[choice].title);
+      s_new_stage = s_choice_view = VIEW_PROJECTS; request(CMD_PROJECTS, 0, 0);
+    } else {
+      copy(s_project, sizeof(s_project), s_choices[choice].route);
+      char target[336]; snprintf(target, sizeof(target), "%s · %s", s_environment_title, s_choices[choice].title);
+      copy(s_new_title, sizeof(s_new_title), target);
+      s_new_stage = VIEW_NEW_READY; s_new_submitted = false; s_new_draft[0] = '\0';
+      show(VIEW_NEW_READY);
+    }
+    return;
+  }
   if (s_view == VIEW_MANAGE) { management_select(row, s_manage_thread); return; }
   if (s_view == VIEW_SNOOZE) { request(CMD_ORGANIZE, s_list.base, row + 2); return; }
   if (s_view == VIEW_ACTIONS) {
@@ -403,7 +475,14 @@ static void show(View view) {
   else if (view == VIEW_SNOOZE) { header(tr(T_SNOOZE)); footer(tr(T_SNOOZE_UNTIL)); }
   else if (view == VIEW_ACTIONS) { header(s_thread_title); footer(tr(T_REPLIES_HINT)); }
   else if (view == VIEW_DRAFT) { header(s_thread_title); footer(tr(T_DRAFT_HINT)); }
-  else if (view == VIEW_LOADING) { header(s_route[0] ? s_thread_title : tr(s_categories[s_category])); body(tr(T_LOADING)); footer(tr(T_BACK_CANCEL)); }
+  else if (view == VIEW_ENVIRONMENTS || view == VIEW_PROJECTS) { header(tr(view == VIEW_ENVIRONMENTS ? T_CHOOSE_ENVIRONMENT : T_CHOOSE_PROJECT)); footer(tr(T_CHOOSE_BACK)); }
+  else if (view == VIEW_NEW_READY) { header(s_new_title); body(tr(T_NEW_INSTRUCTIONS)); footer(tr(T_NEW_DICTATE)); }
+  else if (view == VIEW_NEW_DRAFT) { header(s_new_title); footer(tr(s_new_submitted ? T_CREATION_RETRY_HINT : T_NEW_DRAFT_HINT)); }
+  else if (view == VIEW_LOADING) {
+    if (s_creating) header(tr(s_last_command == CMD_CREATE ? T_CREATING_THREAD : s_choice_view == VIEW_ENVIRONMENTS ? T_CHOOSE_ENVIRONMENT : T_CHOOSE_PROJECT));
+    else header(s_route[0] ? s_thread_title : tr(s_categories[s_category]));
+    body(tr(T_LOADING)); footer(tr(T_BACK_CANCEL));
+  }
   else if (view == VIEW_ERROR) { header(tr(T_CONNECTION)); footer(tr(T_RETRY_BACK)); }
   else if (view == VIEW_SENT) { header(s_thread_title); footer(tr(T_SENT_HINT)); }
 }
@@ -422,6 +501,47 @@ static void inbox(DictionaryIterator *message, void *context) {
   int kind = number(message, MESSAGE_KEY_Kind, 0);
   int id = number(message, MESSAGE_KEY_Request, 0);
   if (id && id != s_request) return;
+  if (kind == MSG_CHOICES && s_creating && s_busy && (s_last_command == CMD_ENVIRONMENTS || s_last_command == CMD_PROJECTS)) {
+    int count = number(message, MESSAGE_KEY_Count, -1), offset = number(message, MESSAGE_KEY_Offset, -1), total = number(message, MESSAGE_KEY_Total, -1);
+    if (count < 0 || count > PAGE_SIZE || offset < 0 || total < offset + count) { fail(tr(T_INVALID_LIST)); return; }
+    s_choice_view = number(message, MESSAGE_KEY_Action, 0) ? VIEW_PROJECTS : VIEW_ENVIRONMENTS;
+    s_new_stage = s_choice_view;
+    s_choice_expected = count; s_choice_received = 0; s_choice_count = count; s_choice_offset = offset; s_choice_total = total;
+    memset(s_choice_staging, 0, sizeof(s_choice_staging));
+    copy(s_creation_id, sizeof(s_creation_id), string(message, MESSAGE_KEY_Creation));
+    s_choice_receiving = count > 0;
+    if (!count) { clear_timeout(); show(s_choice_view); }
+    return;
+  }
+  if (kind == MSG_CHOICE && s_choice_receiving && s_creating) {
+    int index = number(message, MESSAGE_KEY_Index, -1);
+    if (index < 0 || index >= s_choice_expected || s_choice_staging[index].ready) return;
+    Row *row = &s_choice_staging[index]; row->ready = true;
+    copy(row->route, sizeof(row->route), string(message, MESSAGE_KEY_Route));
+    copy(row->title, sizeof(row->title), string(message, MESSAGE_KEY_Title));
+    copy(row->subtitle, sizeof(row->subtitle), string(message, MESSAGE_KEY_Subtitle));
+    if (++s_choice_received == s_choice_expected) {
+      memcpy(s_choices, s_choice_staging, sizeof(s_choices)); s_choice_receiving = false; clear_timeout(); show(s_choice_view);
+    }
+    return;
+  }
+  if (kind == MSG_CREATION_DRAFT && s_creating) {
+    clear_timeout(); s_choice_receiving = false; s_new_submitted = true; s_new_stage = VIEW_NEW_DRAFT;
+    copy(s_creation_id, sizeof(s_creation_id), string(message, MESSAGE_KEY_Creation));
+    copy(s_project, sizeof(s_project), string(message, MESSAGE_KEY_Route));
+    copy(s_new_title, sizeof(s_new_title), string(message, MESSAGE_KEY_Title));
+    copy(s_new_draft, sizeof(s_new_draft), string(message, MESSAGE_KEY_Text));
+    body(s_new_draft); show(VIEW_NEW_DRAFT); return;
+  }
+  if (kind == MSG_CREATED && s_creating) {
+    clear_timeout(); s_choice_receiving = false;
+    copy(s_creation_id, sizeof(s_creation_id), string(message, MESSAGE_KEY_Creation));
+    copy(s_created_receipt, sizeof(s_created_receipt), s_creation_id);
+    s_creating = false; s_category = 1; memset(&s_list, 0, sizeof(s_list));
+    copy(s_route, sizeof(s_route), string(message, MESSAGE_KEY_Route));
+    copy(s_thread_title, sizeof(s_thread_title), string(message, MESSAGE_KEY_Title));
+    s_draft[0] = '\0'; request(CMD_READ, -1, 0); return;
+  }
   if (kind == MSG_CONNECTED) {
     s_read_only = number(message, MESSAGE_KEY_Action, 0);
     s_route[0] = '\0'; s_draft[0] = '\0';
@@ -483,6 +603,7 @@ static void inbox(DictionaryIterator *message, void *context) {
     else if (s_last_command == CMD_ORGANIZE) show(VIEW_LIST);
     return;
   } else if (kind == MSG_READ) {
+    s_created_receipt[0] = '\0';
     clear_timeout(); s_list.receiving = false;
     int flags = number(message, MESSAGE_KEY_Action, 0);
     s_read_only = (flags & 1) != 0; s_pending = (flags & 2) != 0;

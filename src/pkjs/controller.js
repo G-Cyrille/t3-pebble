@@ -4,12 +4,14 @@ var sha256 = require('js-sha256').sha256;
 var protocol = require('./protocol');
 var text = require('./text');
 var api = require('./client');
+var Creation = require('./creation').Creation;
 function Controller(options) {
   this.log = options.log || function () {};
   this.client = options.client; this.storage = options.storage; this.send = options.send;
   this.rows = []; this.routes = {}; this.environments = []; this.snapshot = null; this.listNotice = ''; this.revision = '';
   this.category = 0; this.documents = {}; this.generation = 0; this.request = 0;
   this.pending = this.restore('pending');
+  this.creation = new Creation(this);
   this.readState = this.restore('read-state') || {}; this.receipts = {}; this.receiptSerial = 0;
 }
 Controller.prototype.restore = function (key) {
@@ -20,6 +22,8 @@ Controller.prototype.error = function (id, error) {
 };
 Controller.prototype.handle = function (message) {
   var self = this, command = message.Command, id = message.Request;
+  if (command === protocol.command.CREATE_ACK) return self.creation.acknowledge(message.Creation);
+  if (command === protocol.command.READ && message.Creation) self.creation.acknowledge(message.Creation);
   if (command === protocol.command.SEEN) return self.markSeen(message);
   if (command === protocol.command.POLL) return self.poll(message);
   self.generation++; self.request = id;
@@ -29,6 +33,12 @@ Controller.prototype.handle = function (message) {
     if (error) return self.error(id, error);
     messages.forEach(function (value) { value.Request = id; self.send(value); });
   }
+  if ((command === protocol.command.ENVIRONMENTS || command === protocol.command.PROJECTS) &&
+      (typeof message.Offset !== 'undefined' && (typeof message.Offset !== 'number' || message.Offset < 0 || message.Offset % 1)))
+    return done(api.problem(i18n.t('invalid_page'), 'input'));
+  if (command === protocol.command.ENVIRONMENTS) return self.creation.begin(message.Offset || 0, done, generation);
+  if (command === protocol.command.PROJECTS) return self.creation.listProjects(message.Route, message.Offset || 0, done, generation);
+  if (command === protocol.command.CREATE) return self.creation.create(message, done);
   if (command === protocol.command.LIST) {
     var category = message.Category === undefined ? self.category : message.Category;
     if (category < 0 || category > 3 || category % 1) return done(api.problem(i18n.t('unknown_category'), 'input'));

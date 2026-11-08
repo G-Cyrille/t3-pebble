@@ -4,6 +4,8 @@ Browse Ended, Working, Snoozed and Settled threads across your linked machines. 
 
 Select opens a thread. Select again opens saved replies, starting with a three-line summary. Scroll up for Refresh all, Settle, Snooze and Mark unread. Replies are shown as drafts before sending. System dictation is available when supported by your phone app and speech service.
 
+Create a new thread from the Select-button menu: choose a machine and project, dictate your request, review and confirm. T3 uses the project defaults within your watch permissions. Interrupted creation can be resumed with the same request ID. Writing access and working system dictation are required.
+
 Paste a T3 pairing link in settings to fill the server address and code automatically, or enter them separately. One connection includes machines linked in T3. No developer-hosted relay, account or analytics. Your phone needs HTTPS access or a Tailscale VPN to your server. Read-only permissions are available. Requesting a summary sends a prompt to your agent and may use provider credits.
 
 English by default; French selectable in settings without reconnecting. Community translations welcome on GitHub.

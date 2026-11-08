@@ -4,7 +4,7 @@ Read your T3 Code threads and reply from a Pebble Time 2. Buttons, saved replies
 
 ![Thread list](store/screenshots/emery_threads.png)
 
-[Install from the Pebble Appstore](https://apps.repebble.com/f09e2c791fbb4dd6a175e69b) · [Download 1.0.1](https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.0.1)
+[Install from the Pebble Appstore](https://apps.repebble.com/f09e2c791fbb4dd6a175e69b) · [Download 1.1.0](https://github.com/G-Cyrille/t3-pebble/releases/tag/v1.1.0)
 
 English is the default. French is available in the Pebble app settings. [More translations are welcome](TRANSLATING.md).
 
@@ -27,7 +27,7 @@ Read-only is the initial permission. Sending replies, requesting a summary, sett
 | Thread list | Up / Down | Select a thread; more rows load automatically |
 | Thread list | Select | Read the thread |
 | Any screen | Hold Up | Next category: Ended / Working / Snoozed / Settled |
-| Thread list | Hold Select | Refresh all, settle, snooze, mark unread |
+| Thread list | Hold Select | Refresh all, new thread, settle, snooze, mark unread |
 | Reader | Up / Down | Scroll; move between message pages at the ends |
 | Reader | Select or hold Select | Actions and saved replies |
 | Reply list | Up | Reach management actions above the first saved reply |
@@ -35,6 +35,10 @@ Read-only is the initial permission. Sending replies, requesting a summary, sett
 | Draft | Back | Cancel or return to the reply list |
 
 The reply list starts on **3-line summary**. Other choices include dictation, continue, ask what the agent needs, use its recommendation, and wait for the computer. A summary sends a prompt to your agent and may use your provider credits. Every reply is shown as a draft before sending.
+
+To start a conversation, choose **New thread** in the Select-button management menu. Choose a reachable machine and an active project, press Select to dictate, then review and confirm. T3 chooses the project’s effective model and permission defaults within your watch authorization. The new thread opens on the watch. This requires writing permissions and working system dictation; it is hidden in read-only mode.
+
+If creation is unconfirmed, open **New thread** again to resume the same draft. The phone persists a request ID and reuses it after restarts. A lost response or repeated confirmation therefore replays the accepted launch. Changing connections while creation is uncertain requires checking T3 first. Forgetting the connection discards its local creation receipt; it does not delete an already-created server thread.
 
 **Done means a completed reply unread on this watch. Finished means read.** This read state is stored by the phone companion and is independent of desktop T3 read state. Mark unread affects the watch only. The Ended category also contains idle, failed, and interrupted threads, with their own status labels.
 
@@ -52,7 +56,7 @@ The reader checks for changes about every 20 seconds. It shows a notice; choose 
 - **Android** has been used on physical hardware. Release UI, pairing, pagination, and language changes are also checked in the Time 2 emulator.
 - **iPhone reports are welcome.** Setup and dictation have not been validated on iOS. Please use the [iPhone compatibility issue form](https://github.com/G-Cyrille/t3-pebble/issues/new?template=iphone_compatibility.yml) with your iOS and Pebble app versions. Share both successes and failures.
 - Dictation depends on the phone app, its configured service, and network access. It can be unavailable even when reading works. There is no app-specific speech service.
-- T3 needs OAuth PKCE pairing and `t3_environment_read`, `t3_environment_links`, `t3_thread_list`, `t3_thread_read`, `t3_thread_send`, and `t3_thread_organize`. The integration was checked against the 0.1.8 nightly API of 2026-11-07. Nightly APIs can change; older or different versions may require updates.
+- T3 needs OAuth PKCE pairing and `t3_environment_read`, `t3_environment_links`, `t3_thread_list`, `t3_thread_read`, `t3_thread_send`, `t3_thread_organize`, `t3_project_list`, and `t3_thread_launch`. The integration was checked against the 0.1.8 nightly API of 2026-11-07. Nightly APIs can change; older or different versions may require updates.
 - Accented Latin text is supported by the system fonts. Other scripts need font and layout validation. Existing conversations are never translated.
 
 ## Build and contribute
@@ -63,7 +67,7 @@ Install Node.js 22+, a C compiler for native model tests, Python 3, [Pebble Tool
 npm ci
 npm run check
 npm run release
-pebble install --emulator emery build/t3-pebble-v1.0.1.pbw
+pebble install --emulator emery build/t3-pebble-v1.1.0.pbw
 ```
 
 `pebble build` also regenerates translations and the embedded settings page. Release packaging removes SDK source maps containing local paths. [Development](docs/development.md), [contribution policy](CONTRIBUTING.md), [planned work](TODO.md), and [publication procedure](store/PUBLISHING.md).
@@ -80,4 +84,4 @@ Colle un nouveau lien d’appairage depuis Connections dans « Adresse ou lien T
 
 Un appui long sur Haut change de catégorie. Dans un thread, le bouton central ouvre les actions et les réponses, avec le résumé en trois lignes sélectionné par défaut. Remonte pour atteindre Rafraîchir, Settle, Snooze et Marquer non lu. Chaque réponse passe par un brouillon avant envoi.
 
-Done signifie « terminé non lu sur la montre » ; Terminé signifie « lu ». Cet état n'est pas synchronisé avec celui du PC. Les retours iPhone sont bienvenus via le formulaire GitHub, y compris si tout fonctionne.
+Done signifie « terminé non lu sur la montre » ; Terminé signifie « lu ». Cet état n'est pas synchronisé avec celui du PC. Pour créer un thread, choisis « Nouveau thread » dans le menu central, puis la machine et le projet. Dicte la demande et confirme le brouillon. Une création non confirmée peut être reprise depuis le même menu, sans nouveau lancement. Les retours iPhone sont bienvenus via le formulaire GitHub, y compris si tout fonctionne.

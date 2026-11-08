@@ -17,6 +17,7 @@ body{margin:0;padding:28px 22px;max-width:480px}h1{font-size:28px;margin:0 0 26p
 <p id="access-help"></p>
 <p id="error" role="alert" hidden></p><button type="submit" data-i18n="cfg_connect"></button>
 </form>
+<p id="creation-warning" hidden data-i18n="cfg_creation_warning"></p>
 <button id="disconnect" type="button" class="secondary" hidden data-i18n="cfg_disconnect"></button>
 <script>
 (function(){
@@ -32,6 +33,7 @@ function help(){document.getElementById('access-help').textContent=t(access.valu
 function translate(){document.documentElement.lang=language.value;Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'),function(el){el.textContent=t(el.getAttribute('data-i18n'));});help();}
 language.onchange=translate;access.onchange=help;translate();
 document.getElementById('disconnect').hidden=!initial.connected;
+document.getElementById('creation-warning').hidden=!initial.creationPending;
 document.getElementById('connected').hidden=!initial.connected;
 document.getElementById('resume').onclick=function(){close({resume:true});};
 document.getElementById('save').onclick=function(){close({preferences:true});};

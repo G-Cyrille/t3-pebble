@@ -5,7 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 let origin, authorization, sent = 0;
-const received = new Map();
+const received = new Map(), launches = new Map();
+let failLaunchOnce = false, launchDelay = 0;
 const threads = [
   {environmentId: 'laptop', threadId: 'page', title: 'Improve the welcome page for new users', status: 'completed'},
   {environmentId: 'home', threadId: 'login', title: 'Fix sign-in and keep the session on Android', status: 'waiting'},
@@ -26,6 +27,8 @@ const server = http.createServer((req, res) => {
     let input;
     try {input = raw ? JSON.parse(raw) : {};} catch (_) {input = Object.fromEntries(new URLSearchParams(raw));}
     if (req.url === '/fixture') {
+      if (input.failLaunchOnce !== undefined) failLaunchOnce = !!input.failLaunchOnce;
+      if (input.launchDelay !== undefined) launchDelay = Number(input.launchDelay);
       if (input.delay !== undefined) delay = Number(input.delay);
       if (input.title) {threads.find(t => t.threadId === input.threadId).title = input.title;}
       if (input.status) {threads.find(t => t.threadId === input.threadId).status = input.status;}
@@ -52,6 +55,21 @@ const server = http.createServer((req, res) => {
     let result;
     if (name === 't3_environment_read') result = {environmentId: 'home', label: 'Server'};
     else if (name === 't3_environment_links') result = {links: [{environmentId: 'laptop', label: 'Laptop', status: 'reachable'}, ...(process.env.FIXTURE_OFFLINE ? [{environmentId: 'off', label: 'Desktop', status: 'unreachable'}] : [])]};
+    else if (name === 't3_project_list') {
+      const projects = Array.from({length: 9}, (_,i) => ({id:'project-'+i,title:i?'Project '+i+' with a long descriptive title':'Example project',deletedAt:null,defaultModelSelection:null}));
+      const start=args.cursor||0;result={projects:projects.slice(start,start+4),nextCursor:start+4<projects.length?start+4:null};
+    }
+    else if (name === 't3_thread_launch') {
+      if (!args.clientRequestId || !/^project-/.test(args.projectId) || !args.message) return respond({jsonrpc:'2.0',id:input.id,result:{isError:true,structuredContent:{code:'invalid_request'}}});
+      if (!launches.has(args.clientRequestId)) {
+        const threadId='created-'+launches.size;
+        launches.set(args.clientRequestId,{threadId,status:'running',projectId:args.projectId});
+        threads.push({environmentId:args.environmentId,threadId,title:args.title,status:'running',settled:false,snoozed:false,updatedAt:new Date().toISOString(),latestRunId:'new-run',itemCount:2,fixtureMessage:args.message});
+        fs.writeFileSync(path.join(__dirname,'../artifacts/fixture-launches.json'),JSON.stringify({count:launches.size,requests:[...launches.keys()],last:args}));
+      }
+      result=launches.get(args.clientRequestId);
+      if (failLaunchOnce) {failLaunchOnce=false;req.socket.destroy();return;}
+    }
     else if (name === 't3_thread_list') {
       const matches = threads.filter(t => t.environmentId === args.environmentId &&
         (args.settled === undefined || t.settled === args.settled) && (args.snoozed === undefined || t.snoozed === args.snoozed) &&
@@ -69,20 +87,21 @@ const server = http.createServer((req, res) => {
       result = {sequence: 1};
     }
     else if (name === 't3_thread_read') {
+      const current = threads.find(t => t.threadId === args.threadId && t.environmentId === args.environmentId);
       const items = [
-        {itemId: 'u', position: 0, createdBy: 'user', text: 'Fix sign-in and check the tests.'},
+        {itemId: 'u', position: 0, createdBy: 'user', text: current.fixtureMessage || 'Fix sign-in and check the tests.'},
         {itemId: 'a', position: 1, createdBy: 'agent', text: 'Sign-in is fixed.\n\nThe session survives a reload. All tests pass.\n\nReady to publish. Should I continue?'}
       ];
       if (sent) items.push({itemId: 'summary', position: 2, createdBy: 'agent', text: 'Sign-in fixed.\nAll tests pass.\nReady for review.'});
       const cursor = args.afterPosition === undefined ? -1 : args.afterPosition;
-      const current = threads.find(t => t.threadId === args.threadId && t.environmentId === args.environmentId);
       result = {thread: {status: sent ? 'completed' : current.status, latestRunId: current.latestRunId, itemCount: items.length}, items: items.filter(item => item.position > cursor), hasMore: false, nextPosition: null};
     } else if (name === 't3_thread_send') {
       if (!received.has(args.clientRequestId)) {sent++;received.set(args.clientRequestId, args.message);fs.writeFileSync(path.join(__dirname, '../artifacts/fixture-sends.json'), JSON.stringify({sent, messages: [...received.values()]}));}
       result = {delivery: 'started', messageId: 'm1'};
     } else return respond({jsonrpc: '2.0', id: input.id, error: {code: -32601, message: 'unknown'}});
     const output = {jsonrpc: '2.0', id: input.id, result: {content: [{type: 'text', text: JSON.stringify(result)}], structuredContent: result}};
-    if (delay && name === 't3_thread_list') setTimeout(() => respond(output), delay); else respond(output);
+    if (launchDelay && name === 't3_thread_launch') setTimeout(() => respond(output), launchDelay);
+    else if (delay && name === 't3_thread_list') setTimeout(() => respond(output), delay); else respond(output);
   });
 });
 server.listen(0, '127.0.0.1', () => {

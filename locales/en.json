@@ -138,6 +138,25 @@
     "cfg_disconnect": "Forget connection",
     "cfg_crypto": "This browser cannot create a secure connection. Update your Pebble app.",
     "image": "Image",
-    "cfg_invalid_link": "Invalid T3 address or pairing link. Copy a fresh pairing link from T3 Connections."
+    "cfg_invalid_link": "Invalid T3 address or pairing link. Copy a fresh pairing link from T3 Connections.",
+    "new_thread": "New thread",
+    "choose_environment": "Choose machine",
+    "choose_project": "Choose project",
+    "previous_page": "Previous",
+    "next_page": "More",
+    "no_choices": "No available items",
+    "new_draft_hint": "Select: create · Back: cancel",
+    "new_dictate": "Dictate request",
+    "creation_retry_hint": "Select: retry · Back: leave",
+    "creation_pending_title": "Pending creation",
+    "creation_pending": "A creation is still unconfirmed. Resume it from New thread.",
+    "creation_unconfirmed": "Creation not confirmed. Retry the same draft; T3 will reuse its request ID.",
+    "creation_choose_again": "Choose the machine and project again from New thread.",
+    "creation_connection_changed": "An unconfirmed creation belongs to a previous connection. Check T3 before forgetting that connection in settings.",
+    "cfg_creation_warning": "Forgetting this connection also discards an unconfirmed creation. Check T3 before starting it again.",
+    "creating_thread": "Creating thread…",
+    "new_instructions": "Press Select to dictate your request. Review the text before creating the thread.",
+    "new_microphone": "Dictation is unavailable. Check your phone speech service and try again.",
+    "creation_storage": "Cannot save the creation request on this phone. Free some storage and retry."
   }
 }

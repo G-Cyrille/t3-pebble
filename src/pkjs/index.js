@@ -44,14 +44,14 @@ Pebble.addEventListener('ready', function () {
 });
 Pebble.addEventListener('appmessage', function (event) {
   if (!controller) return deliver({Kind: protocol.kind.ERROR, Request: event.payload.Request, Text: i18n.t('open_settings_connect')});
-  if (event.payload.Command !== protocol.command.POLL && event.payload.Command !== protocol.command.SEEN) outbox = outbox.filter(function (entry, index) {
+  if (event.payload.Command !== protocol.command.POLL && event.payload.Command !== protocol.command.SEEN && event.payload.Command !== protocol.command.CREATE_ACK) outbox = outbox.filter(function (entry, index) {
     return (sending && index === 0) || !entry.value.Request || entry.value.Request === event.payload.Request;
   });
   controller.handle(event.payload);
 });
 Pebble.addEventListener('showConfiguration', function () {
   var config = saved() || {};
-  var initial = {url: config.url || '', access: config.access || '', connected: !!config.token, language: i18n.language()};
+  var initial = {url: config.url || '', access: config.access || '', connected: !!config.token, language: i18n.language(), creationPending: !!(controller && controller.creation && controller.creation.pending && !controller.creation.pending.acknowledged)};
   Pebble.openURL('data:text/html;charset=utf-8,' + encodeURIComponent(page.replace('__INITIAL_CONFIG__', JSON.stringify(initial).replace(/</g, '\\u003c'))));
 });
 Pebble.addEventListener('webviewclosed', function (event) {
@@ -70,8 +70,8 @@ Pebble.addEventListener('webviewclosed', function (event) {
     return;
   }
   if (config.disconnect) {
-    serial++; pairingState = null; if (controller) controller.generation++;
-    localStorage.removeItem('t3.connection'); localStorage.removeItem('t3.pending');
+    serial++; pairingState = null; if (controller) { controller.generation++; if (controller.creation) controller.creation.detached = true; }
+    localStorage.removeItem('t3.connection'); localStorage.removeItem('t3.pending'); localStorage.removeItem('t3.creation');
     client = null; controller = null;
     return deliver({Kind: protocol.kind.ERROR, Request: 0, Text: i18n.t('disconnected')});
   }

@@ -11,3 +11,5 @@ Anglais par défaut, français sélectionnable sans réappairage. Contributions 
 Time 2 uniquement pour cette version. Android a été utilisé sur du matériel réel. La connexion et la dictée sur iPhone restent à valider : les retours, y compris positifs, sont bienvenus via le formulaire GitHub.
 
 Done signifie terminé non lu sur cette montre. Cet état n’est pas synchronisé avec celui du PC. Client non officiel, open source sous licence MIT.
+
+Crée un thread depuis « Nouveau thread » dans le menu central : choisis la machine et le projet, dicte ta demande puis confirme le brouillon. T3 utilise les réglages du projet dans la limite des droits de la montre. Une création interrompue reprend le même identifiant. La création nécessite des droits d’écriture et une dictée fonctionnelle.

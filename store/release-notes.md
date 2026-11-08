@@ -1,3 +1,3 @@
-Paste a T3 pairing link into settings to fill the server address and masked code automatically. Supports direct server links, hosted T3 links and T3 app links. Separate address/code entry remains available.
+Create threads from your watch. Open New thread in the Select-button menu, choose a machine and project, dictate your request, then review and confirm. The new thread opens on the watch.
 
-The full link is not stored, and changing the server clears a code imported from another link. Existing connections and language preferences are preserved.
+T3 uses project defaults within your watch permissions. Uncertain creation resumes with the same request ID after a lost reply or phone restart. Requires writing access and system dictation. English and French included.

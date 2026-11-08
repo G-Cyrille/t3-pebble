@@ -21,7 +21,7 @@ The checks parse the companion as ES5 and run Node behavior tests plus C list te
 
 ```sh
 node test/fixture-server.js
-pebble install --emulator emery build/t3-pebble-v1.0.1.pbw
+pebble install --emulator emery build/t3-pebble-v1.1.0.pbw
 python3 scripts/emulator-config.py artifacts/fixture-config.json
 pebble screenshot --emulator emery --no-open artifacts/example.png
 ```
@@ -37,3 +37,5 @@ To switch only the emulator language, pass a JSON file containing `{"preferences
 Preserve the UUID and append AppMessage keys. Correlate requests so late responses cannot replace the current view. A full phone metadata snapshot gets a revision; continuation pages must match it. Apply list refreshes after a pause and preserve selection by route.
 
 Confirm actual display before marking a completed response read. Never let a delayed receipt undo explicit mark-unread. Preserve pending reply IDs across restarts to avoid duplicate sends. T3 controls final permissions and agent behavior.
+
+Creation choices are paged in six-row atomic batches. A phone-issued creation token is persisted before launch. `t3_thread_launch` receives a stable `clientRequestId`; cancelled navigation still records its eventual result. Only a watch display acknowledgement makes a fresh intent possible. Keep the last receipt to reject or replay late duplicate packets. A changed credential fingerprint cannot replay an uncertain creation in another authentication namespace.

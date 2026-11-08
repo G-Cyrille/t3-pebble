@@ -10,8 +10,8 @@ Keep the UUID unchanged for updates. Use the maintainer's Pebble developer accou
 
 ```sh
 pebble publish --non-interactive --no-gif-all-platforms \
-  --pbw build/t3-pebble-v1.0.1.pbw --is-published \
-  --name 'T3 for Pebble' --version '1.0.1' \
+  --pbw build/t3-pebble-v1.1.0.pbw --is-published \
+  --name 'T3 for Pebble' --version '1.1.0' \
   --description "$(cat store/description.txt)" \
   --release-notes "$(cat store/release-notes.md)" \
   --source https://github.com/G-Cyrille/t3-pebble --category tools \
